@@ -5,12 +5,13 @@
 //  Created by admin on 8/5/15.
 //  Copyright (c) 2015 reicast. All rights reserved.
 //
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 #include <Carbon/Carbon.h>
 
 #include "types.h"
 #include <sys/stat.h>
 #include "emulator-osx-Bridging-Header.h"
+#import "reicast_osx-Swift.h"
 
 #include <OpenGL/gl3.h>
 
@@ -49,7 +50,8 @@ int get_mic_data(u8* buffer) { return 0; }
 int push_vmu_screen(u8* buffer) { return 0; }
 
 void os_SetWindowText(const char * text) {
-    puts(text);
+    AppDelegate *del = NSApp.delegate;
+    del.window.title = @(text);
 }
 
 void os_DoEvents() {

@@ -431,7 +431,7 @@ struct maple_device_instance
 #endif
 
 #if HOST_OS == OS_DARWIN
-int darw_printf(const wchar* Text,...);
+int darw_printf(const wchar* Text,...) __printflike(1, 2);
 #define printf darw_printf
 #define puts(X) printf("%s\n", X)
 #endif
