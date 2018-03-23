@@ -103,7 +103,6 @@
 		84B7BF1B1B72720200F9733F /* inffast.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDA81B72720100F9733F /* inffast.c */; };
 		84B7BF1C1B72720200F9733F /* inflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDAB1B72720100F9733F /* inflate.c */; };
 		84B7BF1D1B72720200F9733F /* inftrees.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDAD1B72720100F9733F /* inftrees.c */; };
-		84B7BF1E1B72720200F9733F /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDAF1B72720100F9733F /* Makefile */; };
 		84B7BF1F1B72720200F9733F /* trees.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDB01B72720100F9733F /* trees.c */; };
 		84B7BF201B72720200F9733F /* uncompr.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDB21B72720100F9733F /* uncompr.c */; };
 		84B7BF211B72720200F9733F /* zutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BDB61B72720100F9733F /* zutil.c */; };
@@ -179,7 +178,6 @@
 		84B7BF6A1B72720200F9733F /* audiobackend_pulseaudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE771B72720200F9733F /* audiobackend_pulseaudio.cpp */; };
 		84B7BF6B1B72720200F9733F /* audiostream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE791B72720200F9733F /* audiostream.cpp */; };
 		84B7BF6C1B72720200F9733F /* profiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE7D1B72720200F9733F /* profiler.cpp */; };
-		84B7BF6D1B72720200F9733F /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE7F1B72720200F9733F /* README.md */; };
 		84B7BF6E1B72720200F9733F /* rec_cpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE811B72720200F9733F /* rec_cpp.cpp */; };
 		84B7BF741B72720200F9733F /* descrambl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE901B72720200F9733F /* descrambl.cpp */; };
 		84B7BF751B72720200F9733F /* gdrom_hle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84B7BE921B72720200F9733F /* gdrom_hle.cpp */; };
@@ -586,6 +584,7 @@
 				84A388B41B1CDD3E000166C0 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		84A388B41B1CDD3E000166C0 /* Products */ = {
 			isa = PBXGroup;
@@ -1338,11 +1337,11 @@
 				TargetAttributes = {
 					84A388B21B1CDD3E000166C0 = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0820;
+						LastSwiftMigration = 0920;
 					};
 					84A388C21B1CDD3F000166C0 = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0820;
+						LastSwiftMigration = 0920;
 						TestTargetID = 84A388B21B1CDD3E000166C0;
 					};
 				};
@@ -1403,7 +1402,6 @@
 				84B7BF7A1B72720200F9733F /* gles.cpp in Sources */,
 				84B7BEFC1B72720200F9733F /* zip_get_name.c in Sources */,
 				84B7BEFA1B72720200F9733F /* zip_get_archive_flag.c in Sources */,
-				84B7BF1E1B72720200F9733F /* Makefile in Sources */,
 				84B7BF0F1B72720200F9733F /* zip_stat_index.c in Sources */,
 				84B7BEEB1B72720200F9733F /* zip_error_get.c in Sources */,
 				84B7BEB31B72720200F9733F /* coreio.cpp in Sources */,
@@ -1452,7 +1450,6 @@
 				84B7BF7B1B72720200F9733F /* gltex.cpp in Sources */,
 				84B7BEF41B72720200F9733F /* zip_filerange_crc.c in Sources */,
 				84B7BEB91B72720200F9733F /* elf.cpp in Sources */,
-				84B7BF6D1B72720200F9733F /* README.md in Sources */,
 				84B7BF2B1B72720200F9733F /* arm_mem.cpp in Sources */,
 				84B7BF4F1B72720200F9733F /* rtc.cpp in Sources */,
 				84B7BF361B72720200F9733F /* maple_helper.cpp in Sources */,
@@ -1708,7 +1705,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "reicast-osx";
 				SWIFT_OBJC_BRIDGING_HEADER = "emulator-osx/emulator-osx-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1737,7 +1735,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "reicast-osx";
 				SWIFT_OBJC_BRIDGING_HEADER = "emulator-osx/emulator-osx-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -1757,7 +1756,8 @@
 				INFOPLIST_FILE = "emulator-osxTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "reicast-osxTests";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reicast-osx.app/Contents/MacOS/reicast-osx";
 			};
 			name = Debug;
@@ -1774,7 +1774,8 @@
 				INFOPLIST_FILE = "emulator-osxTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "reicast-osxTests";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reicast-osx.app/Contents/MacOS/reicast-osx";
 			};
 			name = Release;

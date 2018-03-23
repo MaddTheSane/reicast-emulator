@@ -32,7 +32,7 @@ class EmuGLView: NSOpenGLView {
     }
     
     override func awakeFromNib() {
-        var renderTimer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(EmuGLView.timerTick), userInfo: nil, repeats: true)
+        let renderTimer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(EmuGLView.timerTick), userInfo: nil, repeats: true)
         
         RunLoop.current.add(renderTimer, forMode: RunLoopMode.defaultRunLoopMode);
         RunLoop.current.add(renderTimer, forMode: RunLoopMode.eventTrackingRunLoopMode);
@@ -40,11 +40,11 @@ class EmuGLView: NSOpenGLView {
         let attrs:[NSOpenGLPixelFormatAttribute] =
         [
                 UInt32(NSOpenGLPFADoubleBuffer),
-                UInt32(NSOpenGLPFADepthSize), UInt32(24),
+                UInt32(NSOpenGLPFADepthSize), 24,
                 // Must specify the 3.2 Core Profile to use OpenGL 3.2
                 UInt32(NSOpenGLPFAOpenGLProfile),
                 UInt32(NSOpenGLProfileVersion3_2Core),
-                UInt32(0)
+                0
         ]
         
         let pf = NSOpenGLPixelFormat(attributes:attrs)
@@ -59,16 +59,16 @@ class EmuGLView: NSOpenGLView {
     }
     
    
-    func timerTick() {
+    @objc func timerTick() {
         self.needsDisplay = true;
     }
     
     override func keyDown(with e: NSEvent) {
-        emu_key_input(e.characters!, 1);
+        emu_key_input(e.characters!, true);
     }
     
     override func keyUp(with e: NSEvent) {
-        emu_key_input(e.characters!, 0);
+        emu_key_input(e.characters!, false);
     }
     
 }

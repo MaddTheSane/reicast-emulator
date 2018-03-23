@@ -5,10 +5,12 @@
 //  Created by admin on 8/5/15.
 //  Copyright (c) 2015 reicast. All rights reserved.
 //
-#import <Carbon/Carbon.h>
+#import <Foundation/Foundation.h>
+#include <Carbon/Carbon.h>
 
 #include "types.h"
 #include <sys/stat.h>
+#include "emulator-osx-Bridging-Header.h"
 
 #include <OpenGL/gl3.h>
 
@@ -163,21 +165,21 @@ enum DCPad {
     Axis_Y= 0x20001,
 };
 
-void handle_key(int dckey, int state) {
+void handle_key(int dckey, bool state) {
     if (state)
         kcode[0] &= ~dckey;
     else
         kcode[0] |= dckey;
 }
 
-void handle_trig(u8* dckey, int state) {
+void handle_trig(u8* dckey, bool state) {
     if (state)
         dckey[0] = 255;
     else
         dckey[0] = 0;
 }
 
-extern "C" void emu_key_input(char* keyt, int state) {
+extern "C" void emu_key_input(const char* keyt, bool state) {
     int key = keyt[0];
     switch(key) {
         case 'z':     handle_key(Btn_X, state); break;
