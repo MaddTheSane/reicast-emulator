@@ -34,6 +34,7 @@ static std::shared_ptr<OSXKbGamepadDevice> kb_gamepad(0);
 static std::shared_ptr<OSXMouseGamepadDevice> mouse_gamepad(0);
 unsigned int *pmo_buttons;
 float *pmo_wheel_delta;
+static UInt32 keyboardModifiers;
 
 int darw_printf(const char* text, ...)
 {
@@ -102,6 +103,11 @@ extern "C" void emu_dc_term()
 		dc_exit();
 	dc_term();
 	LogManager::Shutdown();
+}
+
+extern "C" void emu_gui_open_settings()
+{
+	gui_open_settings();
 }
 
 extern "C" void emu_dc_resume()
@@ -193,6 +199,11 @@ extern "C" void emu_gles_init(int width, int height)
     CFRelease(allDisplayModes);
     
 	screen_dpi = (int)(displayNativeSize.width / displayPhysicalSize.width * 25.4f);
+    NSSize displayResolution;
+    displayResolution.width = CGDisplayPixelsWide(displayID);
+    displayResolution.height = CGDisplayPixelsHigh(displayID);
+    scaling = displayNativeSize.width / displayResolution.width;
+    
 	screen_width = width;
 	screen_height = height;
 
@@ -228,7 +239,20 @@ extern "C" int emu_reicast_init()
 }
 
 extern "C" void emu_key_input(UInt16 keyCode, bool pressed, UInt modifierFlags) {
-	keyboard.keyboard_input(keyCode, pressed, keyboard.convert_modifier_keys(modifierFlags));
+	if (keyCode != 0xFF)
+		keyboard.keyboard_input(keyCode, pressed, 0);
+	else
+	{
+		// Modifier keys
+		UInt32 changes = keyboardModifiers ^ modifierFlags;
+		if (changes & NSEventModifierFlagShift)
+			keyboard.keyboard_input(kVK_Shift, modifierFlags & NSEventModifierFlagShift, 0);
+		if (changes & NSEventModifierFlagControl)
+			keyboard.keyboard_input(kVK_Control, modifierFlags & NSEventModifierFlagControl, 0);
+		if (changes & NSEventModifierFlagOption)
+			keyboard.keyboard_input(kVK_Option, modifierFlags & NSEventModifierFlagOption, 0);
+		keyboardModifiers = modifierFlags;
+	}
 	if ((modifierFlags
 		 & (NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagCommand)) == 0)
 		kb_gamepad->gamepad_btn_input(keyCode, pressed);
@@ -247,4 +271,12 @@ extern "C" void emu_mouse_buttons(int button, bool pressed)
 extern "C" void emu_set_mouse_position(int x, int y, int width, int height)
 {
 	SetMousePosition(x, y, width, height);
+}
+
+std::string os_Locale(){
+    return [[[NSLocale preferredLanguages] objectAtIndex:0] UTF8String];
+}
+
+std::string os_PrecomposedString(std::string string){
+    return [[[NSString stringWithUTF8String:string.c_str()] precomposedStringWithCanonicalMapping] UTF8String];
 }

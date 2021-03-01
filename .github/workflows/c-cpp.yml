@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         config:
-#          - {name: i686-pc-windows-msvc, os: windows-latest, cmakeArgs: -G "Visual Studio 16 2019" -A Win32}
+          - {name: i686-pc-windows-msvc, os: windows-latest, cmakeArgs: -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "Visual Studio 16 2019" -A Win32}
           - {name: x86_64-apple-darwin, os: macos-latest, cmakeArgs: -G "Xcode"}
           - {name: x86_64-pc-linux-gnu, os: ubuntu-latest}
           - {name: x86_64-pc-windows-msvc, os: windows-latest, cmakeArgs: -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "Visual Studio 16 2019" -A x64}
@@ -31,7 +31,7 @@ jobs:
           echo "CCACHE_DIR=/tmp/ccache" >> $GITHUB_ENV
         if: matrix.config.os == 'ubuntu-latest'
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v2
         with:
           path: /tmp/ccache
           key: ccache-${{ matrix.config.os }}-${{ github.sha }}
@@ -42,8 +42,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - run: git fetch origin +refs/tags/*:refs/tags/*
 
       - name: Create artifact directory
         run: mkdir -p build/artifact

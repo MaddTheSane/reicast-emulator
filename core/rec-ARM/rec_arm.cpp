@@ -10,6 +10,7 @@
 #include "hw/sh4/sh4_core.h"
 #include "hw/sh4/dyna/ngen.h"
 #include "hw/sh4/sh4_mem.h"
+#include "cfg/option.h"
 
 #define _DEVEL 1
 #include "arm_emitter/arm_emitter.h"
@@ -832,7 +833,7 @@ bool ngen_Rewrite(host_context_t &context, void *faultAddress)
 	//fault offset must always be the addr from ubfx (sanity check)
 	verify((fault_offs==0) || fault_offs==(0x1FFFFFFF&sh4_addr));
 
-	if (settings.dynarec.unstable_opt && is_sq) //THPS2 uses cross area SZ_32F so this is disabled for now
+	if (config::DynarecUnstableOpt && is_sq) //THPS2 uses cross area SZ_32F so this is disabled for now
 	{
 		//SQ !
 		s32 sq_offs=sq_both-sh4_ctr;

@@ -15,6 +15,7 @@
 #include "hw/sh4/sh4_mem.h"
 #include "hw/sh4/modules/mmu.h"
 #include "decoder_opcodes.h"
+#include "cfg/option.h"
 
 #define BLOCK_MAX_SH_OPS_SOFT 500
 #define BLOCK_MAX_SH_OPS_HARD 511
@@ -621,7 +622,7 @@ static u32 MatchDiv32(u32 pc , Sh4RegType &reg1,Sh4RegType &reg2 , Sh4RegType &r
 
 static bool MatchDiv32u(u32 op,u32 pc)
 {
-	if (settings.dynarec.safemode)
+	if (config::DynarecSafeMode)
 		return false;
 
 	div_som_reg1=NoReg;
@@ -643,7 +644,7 @@ static bool MatchDiv32u(u32 op,u32 pc)
 
 static bool MatchDiv32s(u32 op,u32 pc)
 {
-	if (settings.dynarec.safemode)
+	if (config::DynarecSafeMode)
 		return false;
 
 	u32 n = GetN(op);
@@ -1119,7 +1120,7 @@ _end:
 #endif
 
 	//cycle tricks
-	if (settings.dynarec.idleskip)
+	if (config::DynarecIdleSkip)
 	{
 		//Experimental hash-id based idle skip
 		if (!mmu_enabled() && strstr(idle_hash, blk->hash()))

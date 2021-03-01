@@ -446,7 +446,7 @@ bool VulkanContext::InitDevice()
         vk::DescriptorPoolSize pool_sizes[] =
         {
             { vk::DescriptorType::eSampler, 2 },
-            { vk::DescriptorType::eCombinedImageSampler, 4000 },
+            { vk::DescriptorType::eCombinedImageSampler, 15000 },
             { vk::DescriptorType::eSampledImage, 2 },
             { vk::DescriptorType::eStorageImage, 12 },
             { vk::DescriptorType::eUniformTexelBuffer, 2 },
@@ -564,7 +564,7 @@ void VulkanContext::CreateSwapChain()
 #if HOST_CPU != CPU_ARM && HOST_CPU != CPU_ARM64 && !defined(__ANDROID__)
 			for (auto& presentMode : physicalDevice.getSurfacePresentModesKHR(GetSurface()))
 			{
-				if (presentMode == vk::PresentModeKHR::eMailbox)
+				if (presentMode == vk::PresentModeKHR::eMailbox && vendorID != VENDOR_ATI && vendorID != VENDOR_AMD)
 				{
 					INFO_LOG(RENDERER, "Using mailbox present mode");
 					swapchainPresentMode = vk::PresentModeKHR::eMailbox;
@@ -587,7 +587,7 @@ void VulkanContext::CreateSwapChain()
 					(surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied) ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied :
 					(surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied) ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied :
 					(surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit) ? vk::CompositeAlphaFlagBitsKHR::eInherit : vk::CompositeAlphaFlagBitsKHR::eOpaque;
-			u32 imageCount = std::max(2u, surfaceCapabilities.minImageCount);
+			u32 imageCount = std::max(3u, surfaceCapabilities.minImageCount);
 			if (surfaceCapabilities.maxImageCount != 0)
 				imageCount = std::min(imageCount, surfaceCapabilities.maxImageCount);
 			vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment;
@@ -716,7 +716,7 @@ bool VulkanContext::Init()
     VkSurfaceKHR surface;
     if (SDL_Vulkan_CreateSurface((SDL_Window *)window, (VkInstance)*instance, &surface) == 0)
     	return false;
-    this->surface.reset(surface);
+    this->surface.reset(vk::SurfaceKHR(surface));
 #elif defined(_WIN32)
 	vk::Win32SurfaceCreateInfoKHR createInfo(vk::Win32SurfaceCreateFlagsKHR(), GetModuleHandle(NULL), (HWND)window);
 	surface = instance->createWin32SurfaceKHRUnique(createInfo);
@@ -873,14 +873,14 @@ void VulkanContext::PresentFrame(vk::ImageView imageView, vk::Extent2D extent) n
 	{
 		try {
 			NewFrame();
-			auto overlayCmdBuffers = PrepareOverlay(settings.rend.FloatVMUs, true);
+			auto overlayCmdBuffers = PrepareOverlay(config::FloatVMUs, true);
 
 			BeginRenderPass();
 
 			if (lastFrameView) // Might have been nullified if swap chain recreated
 				DrawFrame(imageView, extent);
 
-			DrawOverlay(gui_get_scaling(), settings.rend.FloatVMUs, true);
+			DrawOverlay(gui_get_scaling(), config::FloatVMUs, true);
 			renderer->DrawOSD(false);
 			EndFrame(overlayCmdBuffers);
 		} catch (const InvalidVulkanContext& err) {
@@ -935,7 +935,7 @@ void VulkanContext::Term()
 #ifndef USE_SDL
 	surface.reset();
 #else
-	::vkDestroySurfaceKHR(*instance, surface.release(), nullptr);
+	::vkDestroySurfaceKHR((VkInstance)*instance, (VkSurfaceKHR)surface.release(), nullptr);
 #endif
 	pipelineCache.reset();
 	device.reset();

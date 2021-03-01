@@ -127,11 +127,15 @@ if(WIN32)
 	execute_process(COMMAND git apply -p1 ${CMAKE_CURRENT_SOURCE_DIR}/core/deps/patches/SDL.patch
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/core/deps/SDL) 
 	file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL")
+	if(MSVC)
+		set(SDL_CMAKE_ARCH_ARG -A ${CMAKE_GENERATOR_PLATFORM})
+	endif()
 	execute_process(COMMAND ${CMAKE_COMMAND} 
 		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL" 
+		-DLIBC=ON
 		-DBUILD_SHARED_LIBS=OFF
 		-G "${CMAKE_GENERATOR}"
-		$<$<BOOL:MSVC>:-A ${CMAKE_GENERATOR_PLATFORM}>
+		${SDL_CMAKE_ARCH_ARG}
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/deps/SDL" 
     	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL")
 	execute_process(COMMAND ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL" --config Release --target install)
@@ -142,7 +146,7 @@ if(MINGW)
 endif()
 
 if(NOT ANDROID)
-    find_package(SDL2 QUIET HINTS "${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL")
+    find_package(SDL2 HINTS "${CMAKE_CURRENT_BINARY_DIR}/core/deps/SDL")
 endif()
 if(SDL2_FOUND)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL USE_SDL_AUDIO)
@@ -171,55 +175,45 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE zlibstatic)
     # help libzip find the package
     set(ZLIB_FOUND TRUE)
-    if(MSVC)
-    	# FIXME
-	    set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/core/deps/zlib/Release/zlibstatic.lib")
-	else()
-	    set(ZLIB_LIBRARY "libzlibstatic.a")
-	endif()
     set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/deps/zlib" "${CMAKE_CURRENT_BINARY_DIR}/core/deps/zlib")
+    cmake_policy(SET CMP0026 OLD)
+    get_target_property(ZLIB_LIBRARY zlibstatic LOCATION)
 endif()
 
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND AND NOT ANDROID AND NOT APPLE)
-    pkg_search_module(AO ao)
+    pkg_check_modules(AO IMPORTED_TARGET ao)
     if(AO_FOUND)
         target_compile_definitions(${PROJECT_NAME} PRIVATE USE_LIBAO)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${AO_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE ${AO_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::AO)
     endif()
 
-    pkg_search_module(FLAC flac)
+    pkg_check_modules(FLAC IMPORTED_TARGET flac)
     if(FLAC_FOUND)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${FLAC_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE ${FLAC_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FLAC)
     endif()
 
-    pkg_search_module(LIBEVDEV libevdev)
+    pkg_check_modules(LIBEVDEV IMPORTED_TARGET libevdev)
     if(LIBEVDEV_FOUND)
         target_compile_definitions(${PROJECT_NAME} PRIVATE USE_EVDEV)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBEVDEV)
 
-        pkg_search_module(LIBUDEV libudev)
+        pkg_check_modules(LIBUDEV IMPORTED_TARGET libudev)
         if(LIBUDEV_FOUND)
             target_compile_definitions(${PROJECT_NAME} PRIVATE USE_UDEV)
-            target_include_directories(${PROJECT_NAME} PRIVATE ${LIBUDEV_INCLUDE_DIRS})
-            target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUDEV_LIBRARIES})
+            target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBUDEV)
         endif()
     endif()
 
-    pkg_search_module(LIBPULSE libpulse)
+    pkg_check_modules(LIBPULSE IMPORTED_TARGET libpulse)
     if(LIBPULSE_FOUND)
         target_compile_definitions(${PROJECT_NAME} PRIVATE USE_PULSEAUDIO)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPULSE_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPULSE_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBPULSE)
     endif()
 
-    pkg_search_module(LIBZIP libzip)
+    pkg_check_modules(LIBZIP IMPORTED_TARGET libzip)
     if(LIBZIP_FOUND)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${LIBZIP_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBZIP_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBZIP)
     endif()
 
     if(ENABLE_OPROFILE)
@@ -460,7 +454,9 @@ target_sources(${PROJECT_NAME} PRIVATE
         core/cfg/cfg.h
         core/cfg/cl.cpp
         core/cfg/ini.cpp
-        core/cfg/ini.h)
+        core/cfg/ini.h
+        core/cfg/option.cpp
+        core/cfg/option.h)
 
 target_sources(${PROJECT_NAME} PRIVATE
         core/hw/aica/aica.cpp

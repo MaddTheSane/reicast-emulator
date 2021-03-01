@@ -26,6 +26,7 @@
 #include "stdclass.h"
 #include "hw/naomi/naomi_roms.h"
 #include "oslib/directory.h"
+#include "cfg/option.h"
 
 struct GameMedia {
 	std::string name;
@@ -70,8 +71,15 @@ class GameScanner
         DirectoryTree tree(path);
         for (const DirectoryTree::item& item : tree)
         {
+        	if (item.name.substr(0, 2) == "._")
+        		// Ignore Mac OS turds
+        		continue;
         	std::string name(item.name);
 			std::string child_path = item.parentPath + "/" + name;
+#ifdef __APPLE__
+            extern std::string os_PrecomposedString(std::string string);
+            name = os_PrecomposedString(name);
+#endif
 
 			std::string extension = get_file_extension(name);
 			if (extension == "zip" || extension == "7z")
@@ -91,7 +99,7 @@ class GameScanner
 				if (arcade_gdroms.count(basename) != 0)
 					continue;
 			}
-			else if ((settings.dreamcast.HideLegacyNaomiRoms
+			else if ((config::HideLegacyNaomiRoms
 							|| (extension != "bin" && extension != "lst" && extension != "dat"))
 					&& extension != "cdi" && extension != "cue")
 				continue;
@@ -139,7 +147,7 @@ public:
 					std::lock_guard<std::mutex> guard(mutex);
 					game_list.clear();
 				}
-				for (const auto& path : settings.dreamcast.ContentPath)
+				for (const auto& path : config::ContentPath.get())
 				{
 					add_game_directory(path);
 					if (!running)
